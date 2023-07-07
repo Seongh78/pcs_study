@@ -3,9 +3,103 @@
   <head>
     <title><%= title %></title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
   </head>
+  <style>
+    .chat-container{
+      padding: 15px;
+      background: #f1f1f1;
+    }
+
+    .message-wrapper-your{
+      display: flex;
+      justify-content: flex-start;
+    }
+    .message-wrapper-me{
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .message-your{
+      width:100%;
+      max-width: 40%;
+      background: #149cc9;
+      padding:10px;
+      color:#fff;
+      min-height: 35px;
+      border-radius: 0px 12px 12px 12px;
+    }
+
+    .message-me{
+      width:100%;
+      max-width: 40%;
+      background: #1dc914;
+      padding:10px;
+      color:#fff;
+      min-height: 35px;
+      border-radius: 12px 0px 12px 12px;
+    }
+  </style>
   <body>
     <h1><%= title %></h1>
     <p>Welcome to <%= title %></p>
+    
+
+    <div class="container">
+      <div>
+        <input type="text" id="inputMessage" />
+        <button onclick="onSendMessage();">메시지 전송</button>
+      </div>
+
+      <div id="chat-container" class="chat-container">
+        
+        
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const userName = window.prompt();
+      
+      console.log('userName:',userName);
+      const socket = io.connect('/');
+      console.log('[Client] socket: ', socket);
+
+      
+
+      function onSendMessage(){
+        const value = document.getElementById('inputMessage').value;
+        const newMessage = {
+          name: userName,
+          message: value
+        }
+        socket.emit('all', newMessage);
+      }
+
+      socket.on('receive', function(message){
+        // alert(message)
+        const container = document.getElementById('chat-container');
+        const temp = document.createElement('div');
+        temp.innerHTML = message.name === userName ? `
+        <h4 style="text-align:right;">${message.name}</h4>
+          <div class="message-wrapper-me">
+            <div class="message-me">
+              <p>${message.message}</p>
+            </div>
+          </div>
+          <br/>
+        ` : `
+        <h4 style="text-align:left;">${message.name}</h4>
+        <div class="message-wrapper-your">
+          <div class="message-your">
+            <p>${message.message}</p>
+          </div>
+        </div>
+        <br/>
+        `;
+        container.append(temp)
+      })
+    </script>
   </body>
 </html>

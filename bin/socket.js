@@ -19,6 +19,12 @@ module.exports = function(server){
     io.on('connection', function(socket){
 
         // socket.emit(ID, TEXT)
+
+        socket.on('all',function (message){
+            console.log('[Server] message: ',message);
+            io.emit('receive', message)
+        })
+
     });
 
     /* Logic */
